@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>G Email Receiver</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        h1 {
+            font-weight: 700;
+            color: #0d6efd;
+            margin-top: 20px;
+        }
+        .nav-pills .nav-link {
+            border-radius: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(13, 110, 253, 0.4);
+        }
+        .table-wrapper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        table {
+            border-collapse: collapse;
+        }
+        thead {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+        tbody tr:hover {
+            background-color: #f1f3f4;
+            cursor: pointer;
+        }
+        td {
+            vertical-align: middle;
+        }
+        .email-snippet {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 class="text-center mb-4">📧 G Email Receiver</h1>
+    <p th:if="${success}" th:text="${success}"></p>
+    <p th:if="${failed}" th:text="${failed}"></p>
+    <p th:if="${ErrorMessage}" th:text="${ErrorMessage}"></p>
+
+
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal"
+            data-bs-whatever="@mdo">Compose ✍️
+    </button>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">New message</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/sendmail}" method="post">
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">To:</label>
+                            <input type="text" class="form-control" id="recipient-name" name="to">
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="col-form-label">Subject :</label>
+                            <input type="text" class="form-control" id="subject" name="subject">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">Message:</label>
+                            <textarea class="form-control" id="message-text" name="message"></textarea>
+                        </div>
+
+
+                        <div class="modal-footer">
+                            <!--                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>-->
+                            <button type="submit" class="btn btn-primary">Send Email</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="d-flex align-items-start">
+        <!-- Sidebar Tabs -->
+        <div class="nav flex-column nav-pills me-4" id="v-pills-tab" role="tablist" aria-orientation="vertical"
+             style="min-width: 160px;">
+            <button class="nav-link active" id="v-pills-inbox-tab" data-bs-toggle="pill"
+                    data-bs-target="#v-pills-inbox" type="button" role="tab"
+                    aria-controls="v-pills-inbox" aria-selected="true">Inbox
+            </button>
+            <button class="nav-link" id="v-pills-starred-tab" data-bs-toggle="pill"
+                    data-bs-target="#v-pills-starred" type="button" role="tab"
+                    aria-controls="v-pills-starred" aria-selected="false">Starred
+            </button>
+            <button class="nav-link" id="v-pills-sent-tab" data-bs-toggle="pill"
+                    data-bs-target="#v-pills-sent" type="button" role="tab"
+                    aria-controls="v-pills-sent" aria-selected="false">Sent
+            </button>
+            <button class="nav-link" id="v-pills-spam-tab" data-bs-toggle="pill"
+                    data-bs-target="#v-pills-spam" type="button" role="tab"
+                    aria-controls="v-pills-spam" aria-selected="false">Spam
+            </button>
+            <button class="nav-link" id="v-pills-bin-tab" data-bs-toggle="pill"
+                    data-bs-target="#v-pills-bin" type="button" role="tab"
+                    aria-controls="v-pills-bin" aria-selected="false">Bin
+            </button>
+        </div>
+
+        <!-- Main Tab Content -->
+        <div class="tab-content flex-grow-1" id="v-pills-tabContent">
+
+            <!-- Inbox -->
+            <div class="tab-pane fade show active" id="v-pills-inbox" role="tabpanel"
+                 aria-labelledby="v-pills-inbox-tab">
+                <div class="table-wrapper">
+                    <h4 class="mb-3 text-primary fw-bold">Inbox</h4>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Content</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="email : ${emailsList}">
+                            <td th:text="${email.from}"></td>
+                            <td class="email-subject" th:text="${email.subject}"></td>
+                            <td th:text="${#dates.format(email.receivedDate, 'dd-MM-yyyy HH:mm')}"></td>
+                            <td class="email-snippet" th:text="${email.content}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Starred -->
+            <div class="tab-pane fade" id="v-pills-starred" role="tabpanel"
+                 aria-labelledby="v-pills-starred-tab">
+                <div class="table-wrapper">
+                    <h4 class="mb-3 text-warning fw-bold">⭐ Starred</h4>
+                    <p class="text-muted">No starred emails yet.</p>
+                </div>
+            </div>
+
+            <!-- Sent -->
+            <div class="tab-pane fade" id="v-pills-sent" role="tabpanel"
+                 aria-labelledby="v-pills-sent-tab">
+                <div class="table-wrapper">
+                    <h4 class="mb-3 text-success fw-bold">📤 Sent Mails</h4>
+                    <p class="text-muted">No sent emails found.</p>
+                </div>
+            </div>
+
+            <!-- Spam -->
+            <div class="tab-pane fade" id="v-pills-spam" role="tabpanel"
+                 aria-labelledby="v-pills-spam-tab">
+                <div class="table-wrapper">
+                    <h4 class="mb-3 text-danger fw-bold">🚫 Spam</h4>
+                    <p class="text-muted">No spam emails found.</p>
+                </div>
+            </div>
+
+            <!-- Bin -->
+            <div class="tab-pane fade" id="v-pills-bin" role="tabpanel"
+                 aria-labelledby="v-pills-bin-tab">
+                <div class="table-wrapper">
+                    <h4 class="mb-3 text-secondary fw-bold">🗑️ Bin</h4>
+                    <p class="text-muted">No deleted emails found.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
